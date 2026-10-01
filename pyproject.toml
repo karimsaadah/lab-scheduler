@@ -1,0 +1,87 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lab-scheduler"
+version = "0.1.0"
+description = "A concurrent workflow scheduler for laboratory automation with AI planning support"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [
+    { name = "Karim Saadah", email = "karim_saadah@hotmail.com" },
+]
+keywords = [
+    "laboratory-automation",
+    "self-driving-lab",
+    "biofoundry",
+    "workflow-scheduling",
+    "robotics",
+    "synthetic-biology",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Typing :: Typed",
+]
+
+# Pure stdlib — no third-party runtime dependencies.
+# This is intentional: instruments in a lab environment should not depend on
+# packages that may be unavailable on air-gapped instrument control networks.
+dependencies = []
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "mypy>=1.0",
+    "ruff>=0.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/karimsaadah/lab-scheduler"
+Repository = "https://github.com/karimsaadah/lab-scheduler"
+Issues = "https://github.com/karimsaadah/lab-scheduler/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lab_scheduler*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+log_cli = false
+
+[tool.coverage.run]
+source = ["lab_scheduler"]
+omit = ["tests/*", "examples/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 70
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
