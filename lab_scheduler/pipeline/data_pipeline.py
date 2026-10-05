@@ -121,7 +121,9 @@ class DataPipeline:
         else:
             return self._process_generic(result)
 
-    def normalize_plate_data(self, measurements: dict[str, float | None]) -> dict[str, float | None]:
+    def normalize_plate_data(
+        self, measurements: dict[str, float | None]
+    ) -> dict[str, float | None]:
         """
         Apply z-score normalization to a plate's measurements.
 
