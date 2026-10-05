@@ -146,7 +146,7 @@ class Instrument(ABC):
         operation: str,
         started_at: datetime,
         success: bool,
-        data: dict | None = None,
+        data: dict[str, Any] | None = None,
         error: str | None = None,
     ) -> InstrumentResult:
         result = InstrumentResult(
