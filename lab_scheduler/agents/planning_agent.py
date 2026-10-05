@@ -158,13 +158,13 @@ class PlanningAgent:
             WorkflowStep(
                 instrument_id=tc_id,
                 name="start_pcr_program",
-                operation=lambda inst, p=program: inst.run_program(p),
+                operation=lambda inst, p=program: inst.run_program(p),  # type: ignore[misc]
                 retry_count=1,
             ),
             WorkflowStep(
                 instrument_id=tc_id,
                 name="wait_for_pcr_completion",
-                operation=lambda inst: inst.wait_for_completion(
+                operation=lambda inst: inst.wait_for_completion(  # type: ignore[misc]
                     poll_interval_seconds=0.05,
                     timeout_seconds=7200.0,
                 ),
@@ -198,7 +198,7 @@ class PlanningAgent:
             WorkflowStep(
                 instrument_id=pr_id,
                 name="read_fluorescence",
-                operation=lambda inst, s=spec: inst.read_plate(s),
+                operation=lambda inst, s=spec: inst.read_plate(s),  # type: ignore[misc]
                 retry_count=1,
             ),
         ]
@@ -235,19 +235,19 @@ class PlanningAgent:
             WorkflowStep(
                 instrument_id=tc_id,
                 name="start_pcr",
-                operation=lambda inst, p=program: inst.run_program(p),
+                operation=lambda inst, p=program: inst.run_program(p),  # type: ignore[misc]
                 retry_count=1,
             ),
             WorkflowStep(
                 instrument_id=tc_id,
                 name="wait_for_pcr",
-                operation=lambda inst: inst.wait_for_completion(poll_interval_seconds=0.05),
+                operation=lambda inst: inst.wait_for_completion(poll_interval_seconds=0.05),  # type: ignore[misc]
                 depends_on=[0],
             ),
             WorkflowStep(
                 instrument_id=pr_id,
                 name="read_post_pcr",
-                operation=lambda inst, s=read_spec: inst.read_plate(s),
+                operation=lambda inst, s=read_spec: inst.read_plate(s),  # type: ignore[misc]
                 depends_on=[1],
                 retry_count=1,
             ),
@@ -281,7 +281,7 @@ class PlanningAgent:
             WorkflowStep(
                 instrument_id=lh_id,
                 name=f"transfer_to_A{col}",
-                operation=lambda inst, spec=spec: inst.transfer(spec),
+                operation=lambda inst, spec=spec: inst.transfer(spec),  # type: ignore[misc]
                 depends_on=[col - 2] if col > 1 else [],
                 retry_count=1,
             )
