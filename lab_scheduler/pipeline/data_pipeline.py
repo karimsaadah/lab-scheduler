@@ -121,7 +121,7 @@ class DataPipeline:
         else:
             return self._process_generic(result)
 
-    def normalize_plate_data(self, measurements: dict[str, float]) -> dict[str, float]:
+    def normalize_plate_data(self, measurements: dict[str, float | None]) -> dict[str, float]:
         """
         Apply z-score normalization to a plate's measurements.
 
@@ -154,7 +154,7 @@ class DataPipeline:
             for well, val in measurements.items()
         }
 
-    def generate_report(self, workflow_id: str, results: list[PipelineResult]) -> dict:
+    def generate_report(self, workflow_id: str, results: list[PipelineResult]) -> dict[str, Any]:
         """
         Aggregate multiple PipelineResults from a workflow into a report dict.
 
