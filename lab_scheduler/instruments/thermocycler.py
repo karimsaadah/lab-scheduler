@@ -16,9 +16,8 @@ from __future__ import annotations
 
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Optional
 
 from .base import Instrument, InstrumentResult, InstrumentStatus
 
@@ -32,7 +31,7 @@ class ThermalStep:
     hold_seconds: int       # How long to hold at this temperature
     label: str = ""         # Human-readable label (e.g., "denaturation", "annealing")
 
-    def validate(self) -> Optional[str]:
+    def validate(self) -> str | None:
         if not (-10 <= self.temperature_c <= 110):
             return f"temperature {self.temperature_c}°C out of range (-10 to 110)"
         if self.hold_seconds <= 0:
@@ -54,7 +53,7 @@ class ThermalProgram:
     cycles: int = 1
     lid_temperature_c: float = 105.0
 
-    def validate(self) -> Optional[str]:
+    def validate(self) -> str | None:
         if not self.steps:
             return "program must have at least one step"
         if self.cycles < 1:
@@ -115,8 +114,8 @@ class Thermocycler(Instrument):
         super().__init__(instrument_id, name)
         self.host = host
         self.port = port
-        self._current_program: Optional[ThermalProgram] = None
-        self._run_started_at: Optional[datetime] = None
+        self._current_program: ThermalProgram | None = None
+        self._run_started_at: datetime | None = None
 
     def connect(self) -> bool:
         self._status = InstrumentStatus.INITIALIZING

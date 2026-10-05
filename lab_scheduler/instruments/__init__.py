@@ -1,7 +1,7 @@
-from .base import Instrument, InstrumentStatus, InstrumentError
+from .base import Instrument, InstrumentError, InstrumentStatus
 from .liquid_handler import LiquidHandler
-from .thermocycler import Thermocycler
 from .plate_reader import PlateReader
+from .thermocycler import Thermocycler
 
 __all__ = [
     "Instrument",

@@ -7,16 +7,13 @@ Tests the data model in isolation — no scheduler, no instruments, no I/O.
 from __future__ import annotations
 
 import pytest
-from datetime import datetime
 
 from lab_scheduler.scheduler.workflow import (
-    Workflow,
-    WorkflowStep,
-    WorkflowStatus,
     StepStatus,
+    Workflow,
+    WorkflowStatus,
+    WorkflowStep,
 )
-from lab_scheduler.instruments.base import InstrumentResult
-
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -31,7 +31,6 @@ import threading
 import time
 from concurrent.futures import Future, ThreadPoolExecutor
 from datetime import datetime
-from typing import Optional
 
 from ..instruments.base import Instrument, InstrumentStatus
 from ..observability.event_log import EventLog, EventType
@@ -53,7 +52,7 @@ class LabScheduler:
         result = scheduler.get_workflow(workflow_id)
     """
 
-    def __init__(self, max_workers: int = 8, event_log: Optional[EventLog] = None):
+    def __init__(self, max_workers: int = 8, event_log: EventLog | None = None):
         self._instruments: dict[str, Instrument] = {}
         self._instrument_locks: dict[str, threading.Lock] = {}
         self._workflows: dict[str, Workflow] = {}
@@ -129,7 +128,7 @@ class LabScheduler:
         self._event_log.record(EventType.WORKFLOW_SUBMITTED, workflow.summary())
         return workflow.workflow_id
 
-    def get_workflow(self, workflow_id: str) -> Optional[Workflow]:
+    def get_workflow(self, workflow_id: str) -> Workflow | None:
         return self._workflows.get(workflow_id)
 
     # ------------------------------------------------------------------
@@ -199,13 +198,11 @@ class LabScheduler:
 
         while True:
             ready = workflow.get_ready_steps()
-            new_dispatched = False
 
             for step_idx, step in ready:
                 if step_idx not in step_futures:
                     f = self._executor.submit(self._execute_step, workflow, step_idx, step)
                     step_futures[step_idx] = f
-                    new_dispatched = True
 
             # Check for failures
             any_failed = any(s.status == StepStatus.FAILED for s in workflow.steps)

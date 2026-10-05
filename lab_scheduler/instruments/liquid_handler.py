@@ -16,10 +16,8 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Optional
 
-from .base import Instrument, InstrumentError, InstrumentResult, InstrumentStatus
+from .base import Instrument, InstrumentResult, InstrumentStatus
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +39,7 @@ class TransferSpec:
     tip_index: int
     mix_cycles: int = 0
 
-    def validate(self) -> Optional[str]:
+    def validate(self) -> str | None:
         """Returns an error string if the spec is invalid, None if OK."""
         if self.volume_ul <= 0:
             return f"volume_ul must be positive, got {self.volume_ul}"

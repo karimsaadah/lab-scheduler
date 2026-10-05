@@ -18,11 +18,12 @@ Design principles:
 
 from __future__ import annotations
 
+import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum, auto
-from typing import Any, Callable, Optional
-import uuid
+from typing import Any
 
 
 class WorkflowStatus(Enum):
@@ -58,13 +59,13 @@ class WorkflowStep:
     name: str
     depends_on: list[int] = field(default_factory=list)
     retry_count: int = 0
-    timeout_seconds: Optional[float] = None
+    timeout_seconds: float | None = None
 
     # Set by scheduler during execution — not part of the submitted spec
     status: StepStatus = field(default=StepStatus.PENDING, init=False)
     result: Any = field(default=None, init=False)
-    started_at: Optional[datetime] = field(default=None, init=False)
-    finished_at: Optional[datetime] = field(default=None, init=False)
+    started_at: datetime | None = field(default=None, init=False)
+    finished_at: datetime | None = field(default=None, init=False)
     attempts: int = field(default=0, init=False)
 
 
@@ -88,8 +89,8 @@ class Workflow:
     # Set by scheduler
     workflow_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     status: WorkflowStatus = field(default=WorkflowStatus.PENDING, init=False)
-    started_at: Optional[datetime] = field(default=None, init=False)
-    finished_at: Optional[datetime] = field(default=None, init=False)
+    started_at: datetime | None = field(default=None, init=False)
+    finished_at: datetime | None = field(default=None, init=False)
 
     def get_required_instruments(self) -> set[str]:
         """Returns the set of instrument IDs this workflow needs."""

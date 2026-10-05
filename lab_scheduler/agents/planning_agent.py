@@ -35,7 +35,7 @@ from typing import Any
 
 from ..instruments.liquid_handler import LiquidHandler, TransferSpec
 from ..instruments.plate_reader import PlateReader, ReadMode, ReadSpec
-from ..instruments.thermocycler import Thermocycler, ThermalProgram, STANDARD_PROGRAMS
+from ..instruments.thermocycler import STANDARD_PROGRAMS, Thermocycler
 from ..scheduler.workflow import Workflow, WorkflowStep
 
 logger = logging.getLogger(__name__)

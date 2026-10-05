@@ -25,10 +25,9 @@ import pytest
 from lab_scheduler.instruments.liquid_handler import LiquidHandler, TransferSpec
 from lab_scheduler.instruments.plate_reader import PlateReader, ReadMode, ReadSpec
 from lab_scheduler.instruments.thermocycler import (
-    Thermocycler,
     ThermalProgram,
     ThermalStep,
-    STANDARD_PROGRAMS,
+    Thermocycler,
 )
 from lab_scheduler.observability.event_log import EventLog, EventType
 from lab_scheduler.scheduler.scheduler import LabScheduler
@@ -38,7 +37,6 @@ from lab_scheduler.scheduler.workflow import (
     WorkflowStatus,
     WorkflowStep,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

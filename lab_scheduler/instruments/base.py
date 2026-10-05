@@ -24,7 +24,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum, auto
-from typing import Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ class InstrumentResult:
     started_at: datetime
     finished_at: datetime
     data: dict[str, Any] = field(default_factory=dict)
-    error: Optional[str] = None
+    error: str | None = None
 
     @property
     def duration_seconds(self) -> float:
@@ -146,8 +146,8 @@ class Instrument(ABC):
         operation: str,
         started_at: datetime,
         success: bool,
-        data: Optional[dict] = None,
-        error: Optional[str] = None,
+        data: dict | None = None,
+        error: str | None = None,
     ) -> InstrumentResult:
         result = InstrumentResult(
             instrument_id=self.instrument_id,

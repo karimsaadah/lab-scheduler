@@ -16,9 +16,7 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum, auto
-from typing import Optional
 
 from .base import Instrument, InstrumentResult, InstrumentStatus
 
@@ -45,12 +43,12 @@ class ReadSpec:
     """
     plate_id: str
     mode: ReadMode
-    excitation_nm: Optional[int] = None   # fluorescence
-    emission_nm: Optional[int] = None     # fluorescence
-    wavelength_nm: Optional[int] = None   # absorbance
+    excitation_nm: int | None = None   # fluorescence
+    emission_nm: int | None = None     # fluorescence
+    wavelength_nm: int | None = None   # absorbance
     gain: str = "auto"
 
-    def validate(self) -> Optional[str]:
+    def validate(self) -> str | None:
         if not self.plate_id:
             return "plate_id is required"
         if self.mode == ReadMode.FLUORESCENCE:

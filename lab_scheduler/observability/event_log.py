@@ -22,7 +22,7 @@ from __future__ import annotations
 import threading
 from datetime import datetime
 from enum import Enum, auto
-from typing import Any, Optional
+from typing import Any
 
 
 class EventType(Enum):
@@ -86,7 +86,7 @@ class EventLog:
         with self._lock:
             self._events.append(event)
 
-    def get_events(self, event_type: Optional[EventType] = None) -> list[dict[str, Any]]:
+    def get_events(self, event_type: EventType | None = None) -> list[dict[str, Any]]:
         """
         Return recorded events, optionally filtered to a single EventType.
 

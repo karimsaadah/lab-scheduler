@@ -19,11 +19,10 @@ Design rationale:
 
 from __future__ import annotations
 
-import math
 import statistics
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from ..instruments.base import InstrumentResult
 
@@ -51,7 +50,7 @@ class PipelineResult:
     instrument_id: str = ""
     operation: str = ""
     processed_at: datetime = field(default_factory=datetime.utcnow)
-    raw_result: Optional[InstrumentResult] = field(default=None, repr=False)
+    raw_result: InstrumentResult | None = field(default=None, repr=False)
 
     def __str__(self) -> str:
         status = "PASS" if self.qc_passed else "FAIL"
@@ -197,7 +196,7 @@ class DataPipeline:
     # ------------------------------------------------------------------
 
     def _process_plate_read(self, result: InstrumentResult) -> PipelineResult:
-        measurements: dict[str, Optional[float]] = result.data.get("measurements", {})
+        measurements: dict[str, float | None] = result.data.get("measurements", {})
         values = [v for v in measurements.values() if v is not None]
 
         if not values:

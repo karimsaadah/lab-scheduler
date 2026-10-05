@@ -31,7 +31,6 @@ from lab_scheduler.instruments.plate_reader import PlateReader, ReadMode, ReadSp
 from lab_scheduler.observability.event_log import EventLog, EventType
 from lab_scheduler.scheduler.scheduler import LabScheduler
 from lab_scheduler.scheduler.workflow import (
-    StepStatus,
     Workflow,
     WorkflowStatus,
     WorkflowStep,

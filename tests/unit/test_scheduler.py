@@ -8,10 +8,9 @@ in milliseconds, and failure scenarios that would require physical instruments.
 
 from __future__ import annotations
 
-import threading
-import time
 from datetime import datetime
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from lab_scheduler.instruments.base import (
@@ -27,7 +26,6 @@ from lab_scheduler.scheduler.workflow import (
     WorkflowStatus,
     WorkflowStep,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers / fixtures
@@ -64,7 +62,8 @@ def _make_workflow(
     retry_count: int = 0,
 ) -> Workflow:
     if operation is None:
-        operation = lambda inst: _make_result(instrument_id, "op", True)
+        def operation(inst):
+            return _make_result(instrument_id, "op", True)
     step = WorkflowStep(
         instrument_id=instrument_id,
         name="mock_step",

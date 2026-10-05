@@ -25,14 +25,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from lab_scheduler.instruments.thermocycler import (
-    Thermocycler,
     ThermalProgram,
     ThermalStep,
-    STANDARD_PROGRAMS,
+    Thermocycler,
 )
 from lab_scheduler.observability.event_log import EventLog, EventType
 from lab_scheduler.scheduler.scheduler import LabScheduler
-from lab_scheduler.scheduler.workflow import Workflow, WorkflowStep, StepStatus
+from lab_scheduler.scheduler.workflow import Workflow, WorkflowStep
 
 # Configure logging so we can see what's happening
 logging.basicConfig(
@@ -161,7 +160,7 @@ def main():
                 print(f"      {key}: {val}")
 
     print("\nEvent log summary:")
-    all_events = event_log.get_events()
+    event_log.get_events()
     for event_type in EventType:
         count = len(event_log.get_events(event_type))
         if count > 0:
