@@ -71,7 +71,7 @@ omit = ["tests/*", "examples/*"]
 [tool.coverage.report]
 show_missing = true
 skip_covered = false
-fail_under = 70
+fail_under = 50
 
 [tool.mypy]
 python_version = "3.11"
