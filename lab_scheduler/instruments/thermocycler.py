@@ -27,9 +27,10 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ThermalStep:
     """A single step in a thermal cycling program."""
-    temperature_c: float    # Target temperature in Celsius
-    hold_seconds: int       # How long to hold at this temperature
-    label: str = ""         # Human-readable label (e.g., "denaturation", "annealing")
+
+    temperature_c: float  # Target temperature in Celsius
+    hold_seconds: int  # How long to hold at this temperature
+    label: str = ""  # Human-readable label (e.g., "denaturation", "annealing")
 
     def validate(self) -> str | None:
         if not (-10 <= self.temperature_c <= 110):
@@ -48,6 +49,7 @@ class ThermalProgram:
     steps: ordered list of thermal steps executed each cycle
     lid_temperature_c: heated lid temperature to prevent condensation (typically 105°C)
     """
+
     name: str
     steps: list[ThermalStep]
     cycles: int = 1
@@ -153,14 +155,18 @@ class Thermocycler(Instrument):
         validation_error = program.validate()
         if validation_error:
             return self._make_result(
-                "run_program", started_at, success=False,
-                error=f"Invalid ThermalProgram: {validation_error}"
+                "run_program",
+                started_at,
+                success=False,
+                error=f"Invalid ThermalProgram: {validation_error}",
             )
 
         if not self.is_available:
             return self._make_result(
-                "run_program", started_at, success=False,
-                error=f"Thermocycler not available (status={self._status.name})"
+                "run_program",
+                started_at,
+                success=False,
+                error=f"Thermocycler not available (status={self._status.name})",
             )
 
         self._status = InstrumentStatus.BUSY
@@ -169,17 +175,21 @@ class Thermocycler(Instrument):
 
         self._logger.info(
             "Starting program '%s': %d cycles, ~%ds estimated",
-            program.name, program.cycles, program.estimated_duration_seconds
+            program.name,
+            program.cycles,
+            program.estimated_duration_seconds,
         )
 
         # Production: send program definition to instrument, await ACK
         return self._make_result(
-            "run_program", started_at, success=True,
+            "run_program",
+            started_at,
+            success=True,
             data={
                 "program": program.name,
                 "cycles": program.cycles,
                 "estimated_duration_seconds": program.estimated_duration_seconds,
-            }
+            },
         )
 
     def get_run_status(self) -> dict:
@@ -189,7 +199,9 @@ class Thermocycler(Instrument):
         """
         if self._status == InstrumentStatus.BUSY and self._run_started_at:
             elapsed = (datetime.utcnow() - self._run_started_at).total_seconds()
-            estimated = self._current_program.estimated_duration_seconds if self._current_program else 0
+            estimated = (
+                self._current_program.estimated_duration_seconds if self._current_program else 0
+            )
             # Production: query instrument API for actual step/cycle position
             complete = elapsed >= estimated  # Simulation only
             if complete:
@@ -210,7 +222,9 @@ class Thermocycler(Instrument):
             "program": None,
         }
 
-    def wait_for_completion(self, poll_interval_seconds: float = 5.0, timeout_seconds: float = 7200.0) -> InstrumentResult:
+    def wait_for_completion(
+        self, poll_interval_seconds: float = 5.0, timeout_seconds: float = 7200.0
+    ) -> InstrumentResult:
         """
         Block until the current run finishes, errors, or times out.
 
@@ -224,18 +238,24 @@ class Thermocycler(Instrument):
             status = self.get_run_status()
             if status["error"]:
                 return self._make_result(
-                    "wait_for_completion", started_at, success=False,
-                    error="Thermocycler reported error during run"
+                    "wait_for_completion",
+                    started_at,
+                    success=False,
+                    error="Thermocycler reported error during run",
                 )
             if status["complete"]:
                 return self._make_result(
-                    "wait_for_completion", started_at, success=True,
-                    data={"elapsed_seconds": status["elapsed_seconds"]}
+                    "wait_for_completion",
+                    started_at,
+                    success=True,
+                    data={"elapsed_seconds": status["elapsed_seconds"]},
                 )
             time.sleep(poll_interval_seconds)
 
         self._status = InstrumentStatus.ERROR
         return self._make_result(
-            "wait_for_completion", started_at, success=False,
-            error=f"Run timed out after {timeout_seconds}s"
+            "wait_for_completion",
+            started_at,
+            success=False,
+            error=f"Run timed out after {timeout_seconds}s",
         )

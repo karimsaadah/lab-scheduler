@@ -33,6 +33,7 @@ class TransferSpec:
     tip_index: which tip position to use (prevents cross-contamination)
     mix_cycles: number of aspirate/dispense cycles after transfer (0 = no mixing)
     """
+
     volume_ul: float
     source: str
     destination: str
@@ -130,42 +131,50 @@ class LiquidHandler(Instrument):
         validation_error = spec.validate()
         if validation_error:
             return self._make_result(
-                "transfer", started_at, success=False,
-                error=f"Invalid TransferSpec: {validation_error}"
+                "transfer",
+                started_at,
+                success=False,
+                error=f"Invalid TransferSpec: {validation_error}",
             )
 
         if not self.is_available:
             return self._make_result(
-                "transfer", started_at, success=False,
-                error=f"Instrument not available (status={self._status.name})"
+                "transfer",
+                started_at,
+                success=False,
+                error=f"Instrument not available (status={self._status.name})",
             )
 
         self._status = InstrumentStatus.BUSY
         try:
             self._logger.info(
                 "Transferring %.1f µL: %s -> %s (tip %d, mix %d)",
-                spec.volume_ul, spec.source, spec.destination,
-                spec.tip_index, spec.mix_cycles
+                spec.volume_ul,
+                spec.source,
+                spec.destination,
+                spec.tip_index,
+                spec.mix_cycles,
             )
             # Production: send command to vendor API, await acknowledgment
             time.sleep(0.05)  # Simulate operation time
 
             self._status = InstrumentStatus.IDLE
             return self._make_result(
-                "transfer", started_at, success=True,
+                "transfer",
+                started_at,
+                success=True,
                 data={
                     "volume_ul": spec.volume_ul,
                     "source": spec.source,
                     "destination": spec.destination,
                     "tip_index": spec.tip_index,
                     "mix_cycles": spec.mix_cycles,
-                }
+                },
             )
         except Exception as exc:
             self._status = InstrumentStatus.ERROR
             return self._make_result(
-                "transfer", started_at, success=False,
-                error=f"Transfer failed at instrument: {exc}"
+                "transfer", started_at, success=False, error=f"Transfer failed at instrument: {exc}"
             )
 
     def transfer_batch(self, specs: list[TransferSpec]) -> list[InstrumentResult]:
@@ -184,8 +193,7 @@ class LiquidHandler(Instrument):
             results.append(result)
             if not result.success:
                 self._logger.error(
-                    "Batch transfer aborted at step %d/%d: %s",
-                    i + 1, len(specs), result.error
+                    "Batch transfer aborted at step %d/%d: %s", i + 1, len(specs), result.error
                 )
                 break
         return results
@@ -195,8 +203,10 @@ class LiquidHandler(Instrument):
         started_at = self._start_result("eject_tips")
         if not self.is_available:
             return self._make_result(
-                "eject_tips", started_at, success=False,
-                error=f"Cannot eject tips: status={self._status.name}"
+                "eject_tips",
+                started_at,
+                success=False,
+                error=f"Cannot eject tips: status={self._status.name}",
             )
         self._status = InstrumentStatus.BUSY
         try:
@@ -205,7 +215,4 @@ class LiquidHandler(Instrument):
             return self._make_result("eject_tips", started_at, success=True)
         except Exception as exc:
             self._status = InstrumentStatus.ERROR
-            return self._make_result(
-                "eject_tips", started_at, success=False,
-                error=str(exc)
-            )
+            return self._make_result("eject_tips", started_at, success=False, error=str(exc))

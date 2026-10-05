@@ -86,9 +86,7 @@ class PlanningAgent:
                            are not present in available_instruments.
         """
         self._logger.info("Planning workflow for goal: '%s'", goal)
-        self._logger.debug(
-            "Available instruments: %s", list(available_instruments.keys())
-        )
+        self._logger.debug("Available instruments: %s", list(available_instruments.keys()))
 
         # ----------------------------------------------------------------
         # LLM integration point:
@@ -102,9 +100,7 @@ class PlanningAgent:
     # Rule-based planner (deterministic fallback / built-in protocols)
     # ------------------------------------------------------------------
 
-    def _rule_based_plan(
-        self, goal: str, available_instruments: dict[str, Any]
-    ) -> Workflow:
+    def _rule_based_plan(self, goal: str, available_instruments: dict[str, Any]) -> Workflow:
         """
         Deterministic planner for a fixed set of known experimental protocols.
 
@@ -155,9 +151,7 @@ class PlanningAgent:
         """
         Standard PCR protocol: run the pcr_standard program and wait for completion.
         """
-        tc_id, tc = self._require_instrument(
-            available_instruments, Thermocycler, "Thermocycler"
-        )
+        tc_id, tc = self._require_instrument(available_instruments, Thermocycler, "Thermocycler")
         program = STANDARD_PROGRAMS["pcr_standard"]
 
         steps = [
@@ -191,9 +185,7 @@ class PlanningAgent:
         """
         Plate read protocol: measure fluorescence at GFP wavelengths (485/528 nm).
         """
-        pr_id, pr = self._require_instrument(
-            available_instruments, PlateReader, "PlateReader"
-        )
+        pr_id, pr = self._require_instrument(available_instruments, PlateReader, "PlateReader")
         spec = ReadSpec(
             plate_id="plate_001",
             mode=ReadMode.FLUORESCENCE,
@@ -228,12 +220,8 @@ class PlanningAgent:
         In a real workflow, a liquid handling step would move the plate between
         instruments; here we assume manual transfer for simplicity.
         """
-        tc_id, _ = self._require_instrument(
-            available_instruments, Thermocycler, "Thermocycler"
-        )
-        pr_id, _ = self._require_instrument(
-            available_instruments, PlateReader, "PlateReader"
-        )
+        tc_id, _ = self._require_instrument(available_instruments, Thermocycler, "Thermocycler")
+        pr_id, _ = self._require_instrument(available_instruments, PlateReader, "PlateReader")
 
         program = STANDARD_PROGRAMS["pcr_standard"]
         read_spec = ReadSpec(
@@ -253,9 +241,7 @@ class PlanningAgent:
             WorkflowStep(
                 instrument_id=tc_id,
                 name="wait_for_pcr",
-                operation=lambda inst: inst.wait_for_completion(
-                    poll_interval_seconds=0.05
-                ),
+                operation=lambda inst: inst.wait_for_completion(poll_interval_seconds=0.05),
                 depends_on=[0],
             ),
             WorkflowStep(
@@ -278,9 +264,7 @@ class PlanningAgent:
         """
         Sample transfer: move 50 µL from reservoir to wells A1-A4.
         """
-        lh_id, _ = self._require_instrument(
-            available_instruments, LiquidHandler, "LiquidHandler"
-        )
+        lh_id, _ = self._require_instrument(available_instruments, LiquidHandler, "LiquidHandler")
 
         transfer_specs = [
             TransferSpec(

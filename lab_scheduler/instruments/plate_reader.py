@@ -41,11 +41,12 @@ class ReadSpec:
     wavelength_nm: measurement wavelength (absorbance only)
     gain: detector gain — 'auto' lets the instrument optimize
     """
+
     plate_id: str
     mode: ReadMode
-    excitation_nm: int | None = None   # fluorescence
-    emission_nm: int | None = None     # fluorescence
-    wavelength_nm: int | None = None   # absorbance
+    excitation_nm: int | None = None  # fluorescence
+    emission_nm: int | None = None  # fluorescence
+    wavelength_nm: int | None = None  # absorbance
     gain: str = "auto"
 
     def validate(self) -> str | None:
@@ -120,21 +121,24 @@ class PlateReader(Instrument):
         validation_error = spec.validate()
         if validation_error:
             return self._make_result(
-                "read_plate", started_at, success=False,
-                error=f"Invalid ReadSpec: {validation_error}"
+                "read_plate",
+                started_at,
+                success=False,
+                error=f"Invalid ReadSpec: {validation_error}",
             )
 
         if not self.is_available:
             return self._make_result(
-                "read_plate", started_at, success=False,
-                error=f"Plate reader not available (status={self._status.name})"
+                "read_plate",
+                started_at,
+                success=False,
+                error=f"Plate reader not available (status={self._status.name})",
             )
 
         self._status = InstrumentStatus.BUSY
         try:
             self._logger.info(
-                "Reading plate %s: mode=%s, gain=%s",
-                spec.plate_id, spec.mode.name, spec.gain
+                "Reading plate %s: mode=%s, gain=%s", spec.plate_id, spec.mode.name, spec.gain
             )
             time.sleep(0.1)  # Simulate read time
 
@@ -144,22 +148,24 @@ class PlateReader(Instrument):
             cols = range(1, 13)
             measurements = {
                 f"{r}{c}": round(1000 + hash(f"{spec.plate_id}{r}{c}") % 500, 2)
-                for r in rows for c in cols
+                for r in rows
+                for c in cols
             }
 
             self._status = InstrumentStatus.IDLE
             return self._make_result(
-                "read_plate", started_at, success=True,
+                "read_plate",
+                started_at,
+                success=True,
                 data={
                     "plate_id": spec.plate_id,
                     "mode": spec.mode.name,
                     "well_count": well_count,
                     "measurements": measurements,
-                }
+                },
             )
         except Exception as exc:
             self._status = InstrumentStatus.ERROR
             return self._make_result(
-                "read_plate", started_at, success=False,
-                error=f"Read failed: {exc}"
+                "read_plate", started_at, success=False, error=f"Read failed: {exc}"
             )

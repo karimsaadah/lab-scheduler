@@ -43,6 +43,7 @@ class PipelineResult:
         processed_at:   UTC timestamp of pipeline processing.
         raw_result:     Reference to the original InstrumentResult for full traceability.
     """
+
     processed_data: dict[str, Any]
     summary: dict[str, Any]
     qc_passed: bool
@@ -55,8 +56,7 @@ class PipelineResult:
     def __str__(self) -> str:
         status = "PASS" if self.qc_passed else "FAIL"
         return (
-            f"PipelineResult [{self.instrument_id}/{self.operation}] "
-            f"QC={status} | {self.summary}"
+            f"PipelineResult [{self.instrument_id}/{self.operation}] QC={status} | {self.summary}"
         )
 
 
@@ -172,15 +172,17 @@ class DataPipeline:
         step_summaries = []
 
         for i, r in enumerate(results):
-            step_summaries.append({
-                "step_index": i,
-                "instrument_id": r.instrument_id,
-                "operation": r.operation,
-                "qc_passed": r.qc_passed,
-                "qc_notes": r.qc_notes,
-                "summary": r.summary,
-                "processed_at": r.processed_at.isoformat(),
-            })
+            step_summaries.append(
+                {
+                    "step_index": i,
+                    "instrument_id": r.instrument_id,
+                    "operation": r.operation,
+                    "qc_passed": r.qc_passed,
+                    "qc_notes": r.qc_notes,
+                    "summary": r.summary,
+                    "processed_at": r.processed_at.isoformat(),
+                }
+            )
 
         return {
             "report_version": "1.0",
@@ -230,18 +232,19 @@ class DataPipeline:
 
         if cv > self.cv_threshold:
             qc_notes.append(
-                f"FAIL: CV {cv:.3f} ({cv*100:.1f}%) exceeds threshold {self.cv_threshold*100:.1f}%"
+                f"FAIL: CV {cv:.3f} ({cv * 100:.1f}%) exceeds threshold {self.cv_threshold * 100:.1f}%"
             )
             qc_passed = False
         else:
             qc_notes.append(
-                f"PASS: CV {cv:.3f} ({cv*100:.1f}%) within threshold {self.cv_threshold*100:.1f}%"
+                f"PASS: CV {cv:.3f} ({cv * 100:.1f}%) within threshold {self.cv_threshold * 100:.1f}%"
             )
 
         # Outlier detection
         if std > 0:
             outliers = [
-                well for well, val in measurements.items()
+                well
+                for well, val in measurements.items()
                 if val is not None and abs((val - mean) / std) > self.zscore_outlier_threshold
             ]
             if outliers:

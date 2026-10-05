@@ -19,6 +19,7 @@ from lab_scheduler.scheduler.workflow import (
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_step(
     instrument_id: str = "inst_1",
     name: str = "test_step",
@@ -47,6 +48,7 @@ def _make_workflow(steps: list[WorkflowStep] | None = None, priority: int = 0) -
 # ---------------------------------------------------------------------------
 # get_ready_steps
 # ---------------------------------------------------------------------------
+
 
 class TestGetReadySteps:
     def test_all_pending_no_deps_are_ready(self):
@@ -141,14 +143,18 @@ class TestGetReadySteps:
 # is_terminal
 # ---------------------------------------------------------------------------
 
+
 class TestIsTerminal:
-    @pytest.mark.parametrize("status,expected", [
-        (WorkflowStatus.PENDING, False),
-        (WorkflowStatus.RUNNING, False),
-        (WorkflowStatus.COMPLETED, True),
-        (WorkflowStatus.FAILED, True),
-        (WorkflowStatus.CANCELLED, True),
-    ])
+    @pytest.mark.parametrize(
+        "status,expected",
+        [
+            (WorkflowStatus.PENDING, False),
+            (WorkflowStatus.RUNNING, False),
+            (WorkflowStatus.COMPLETED, True),
+            (WorkflowStatus.FAILED, True),
+            (WorkflowStatus.CANCELLED, True),
+        ],
+    )
     def test_terminal_states(self, status, expected):
         wf = _make_workflow()
         wf.status = status
@@ -158,6 +164,7 @@ class TestIsTerminal:
 # ---------------------------------------------------------------------------
 # get_required_instruments
 # ---------------------------------------------------------------------------
+
 
 class TestGetRequiredInstruments:
     def test_single_instrument(self):
@@ -191,6 +198,7 @@ class TestGetRequiredInstruments:
 # Priority sorting
 # ---------------------------------------------------------------------------
 
+
 class TestPrioritySorting:
     def test_priority_field_is_stored(self):
         wf_low = _make_workflow(priority=0)
@@ -213,6 +221,7 @@ class TestPrioritySorting:
 # ---------------------------------------------------------------------------
 # summary()
 # ---------------------------------------------------------------------------
+
 
 class TestWorkflowSummary:
     def test_summary_pending_workflow(self):
@@ -261,6 +270,7 @@ class TestWorkflowSummary:
 # ---------------------------------------------------------------------------
 # WorkflowStep fields
 # ---------------------------------------------------------------------------
+
 
 class TestWorkflowStepFields:
     def test_default_status_is_pending(self):

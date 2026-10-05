@@ -56,21 +56,25 @@ def build_liquid_handler_workflow(instrument_id: str = "lh_01") -> Workflow:
 
     steps = []
     for i, spec in enumerate(specs):
-        steps.append(WorkflowStep(
-            instrument_id=instrument_id,
-            name=f"transfer_A{i + 1}",
-            operation=lambda inst, s=spec: inst.transfer(s),
-            depends_on=[i - 1] if i > 0 else [],  # chain sequentially (same instrument)
-            retry_count=1,
-        ))
+        steps.append(
+            WorkflowStep(
+                instrument_id=instrument_id,
+                name=f"transfer_A{i + 1}",
+                operation=lambda inst, s=spec: inst.transfer(s),
+                depends_on=[i - 1] if i > 0 else [],  # chain sequentially (same instrument)
+                retry_count=1,
+            )
+        )
 
     # Final step: eject tips for cleanliness
-    steps.append(WorkflowStep(
-        instrument_id=instrument_id,
-        name="eject_tips",
-        operation=lambda inst: inst.eject_tips(),
-        depends_on=[len(specs) - 1],
-    ))
+    steps.append(
+        WorkflowStep(
+            instrument_id=instrument_id,
+            name="eject_tips",
+            operation=lambda inst: inst.eject_tips(),
+            depends_on=[len(specs) - 1],
+        )
+    )
 
     return Workflow(
         steps=steps,
@@ -153,11 +157,13 @@ def main():
 
     logger.info(
         "Liquid handler workflow: %d steps targeting %s",
-        len(wf_lh.steps), wf_lh.get_required_instruments()
+        len(wf_lh.steps),
+        wf_lh.get_required_instruments(),
     )
     logger.info(
         "Plate reader workflow: %d steps targeting %s",
-        len(wf_pr.steps), wf_pr.get_required_instruments()
+        len(wf_pr.steps),
+        wf_pr.get_required_instruments(),
     )
 
     # ----------------------------------------------------------------
@@ -191,10 +197,7 @@ def main():
 
     # Collect step durations to estimate serial time
     all_step_durations = [
-        step.result.duration_seconds
-        for wf in (wf_lh, wf_pr)
-        for step in wf.steps
-        if step.result
+        step.result.duration_seconds for wf in (wf_lh, wf_pr) for step in wf.steps if step.result
     ]
     serial_estimate = sum(all_step_durations)
     print(f"\n  Serial estimate (sum of all step durations): {serial_estimate:.3f}s")

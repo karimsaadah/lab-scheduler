@@ -31,7 +31,10 @@ from lab_scheduler.scheduler.workflow import (
 # Helpers / fixtures
 # ---------------------------------------------------------------------------
 
-def _make_result(instrument_id: str, operation: str, success: bool, error: str | None = None) -> InstrumentResult:
+
+def _make_result(
+    instrument_id: str, operation: str, success: bool, error: str | None = None
+) -> InstrumentResult:
     now = datetime.utcnow()
     return InstrumentResult(
         instrument_id=instrument_id,
@@ -44,14 +47,16 @@ def _make_result(instrument_id: str, operation: str, success: bool, error: str |
     )
 
 
-def _make_instrument(instrument_id: str = "inst_1", status: InstrumentStatus = InstrumentStatus.IDLE) -> MagicMock:
+def _make_instrument(
+    instrument_id: str = "inst_1", status: InstrumentStatus = InstrumentStatus.IDLE
+) -> MagicMock:
     """Create a mock Instrument that behaves like a connected, idle instrument."""
     inst = MagicMock(spec=Instrument)
     inst.instrument_id = instrument_id
     inst.name = f"Mock {instrument_id}"
     inst.status = status
     inst.get_status.return_value = status
-    inst.is_available = (status == InstrumentStatus.IDLE)
+    inst.is_available = status == InstrumentStatus.IDLE
     return inst
 
 
@@ -62,8 +67,10 @@ def _make_workflow(
     retry_count: int = 0,
 ) -> Workflow:
     if operation is None:
+
         def operation(inst):
             return _make_result(instrument_id, "op", True)
+
     step = WorkflowStep(
         instrument_id=instrument_id,
         name="mock_step",
@@ -87,6 +94,7 @@ def idle_instrument() -> MagicMock:
 # ---------------------------------------------------------------------------
 # register_instrument
 # ---------------------------------------------------------------------------
+
 
 class TestRegisterInstrument:
     def test_register_idle_instrument_succeeds(self, scheduler, idle_instrument):
@@ -122,6 +130,7 @@ class TestRegisterInstrument:
 # ---------------------------------------------------------------------------
 # submit
 # ---------------------------------------------------------------------------
+
 
 class TestSubmit:
     def test_submit_returns_workflow_id(self, scheduler, idle_instrument):
@@ -167,6 +176,7 @@ class TestSubmit:
 # ---------------------------------------------------------------------------
 # Full workflow execution (mock instruments)
 # ---------------------------------------------------------------------------
+
 
 class TestWorkflowExecution:
     def test_successful_single_step_workflow(self, scheduler, idle_instrument):
@@ -234,9 +244,7 @@ class TestWorkflowExecution:
         scheduler.run(poll_interval_seconds=0.02)
 
         assert wf.status == WorkflowStatus.COMPLETED
-        assert execution_order == ["a", "b"], (
-            f"Steps ran out of order: {execution_order}"
-        )
+        assert execution_order == ["a", "b"], f"Steps ran out of order: {execution_order}"
 
     def test_workflow_emits_started_and_completed_events(self, scheduler, idle_instrument):
         scheduler.register_instrument(idle_instrument)
@@ -252,9 +260,7 @@ class TestWorkflowExecution:
 
     def test_failed_workflow_emits_failed_event(self, scheduler, idle_instrument):
         scheduler.register_instrument(idle_instrument)
-        failing_op = MagicMock(
-            return_value=_make_result("inst_1", "op", False, "oops")
-        )
+        failing_op = MagicMock(return_value=_make_result("inst_1", "op", False, "oops"))
         wf = _make_workflow("inst_1", operation=failing_op)
         scheduler.submit(wf)
         scheduler.run(poll_interval_seconds=0.05)
@@ -267,6 +273,7 @@ class TestWorkflowExecution:
 # ---------------------------------------------------------------------------
 # Retry behavior
 # ---------------------------------------------------------------------------
+
 
 class TestRetryBehavior:
     def test_step_retries_on_failure_then_succeeds(self, scheduler, idle_instrument):
@@ -302,9 +309,7 @@ class TestRetryBehavior:
         """An operation that always fails should exhaust retries and fail the workflow."""
         scheduler.register_instrument(idle_instrument)
 
-        always_fail = MagicMock(
-            return_value=_make_result("inst_1", "op", False, "permanent error")
-        )
+        always_fail = MagicMock(return_value=_make_result("inst_1", "op", False, "permanent error"))
         step = WorkflowStep(
             instrument_id="inst_1",
             name="doomed_step",
@@ -326,9 +331,7 @@ class TestRetryBehavior:
         """A step with retry_count=0 should fail after exactly one attempt."""
         scheduler.register_instrument(idle_instrument)
 
-        failing_op = MagicMock(
-            return_value=_make_result("inst_1", "op", False, "error")
-        )
+        failing_op = MagicMock(return_value=_make_result("inst_1", "op", False, "error"))
         step = WorkflowStep(
             instrument_id="inst_1",
             name="no_retry_step",
@@ -369,6 +372,7 @@ class TestRetryBehavior:
 # ---------------------------------------------------------------------------
 # instrument_status_report
 # ---------------------------------------------------------------------------
+
 
 class TestStatusReport:
     def test_status_report_includes_all_instruments(self, scheduler):

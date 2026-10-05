@@ -31,11 +31,12 @@ logger = logging.getLogger(__name__)
 
 class InstrumentStatus(Enum):
     """Observable states of a laboratory instrument."""
-    DISCONNECTED = auto()   # Not connected; no commands can be sent
-    IDLE = auto()           # Connected and ready to accept a command
-    BUSY = auto()           # Currently executing an operation
-    ERROR = auto()          # In an error state; requires intervention or reset
-    INITIALIZING = auto()   # Connecting or running startup self-check
+
+    DISCONNECTED = auto()  # Not connected; no commands can be sent
+    IDLE = auto()  # Connected and ready to accept a command
+    BUSY = auto()  # Currently executing an operation
+    ERROR = auto()  # In an error state; requires intervention or reset
+    INITIALIZING = auto()  # Connecting or running startup self-check
 
 
 class InstrumentError(Exception):
@@ -44,6 +45,7 @@ class InstrumentError(Exception):
     cannot automatically recover from. Includes the instrument id and
     the last known status to help incident analysis.
     """
+
     def __init__(self, message: str, instrument_id: str, status: InstrumentStatus):
         super().__init__(message)
         self.instrument_id = instrument_id
@@ -59,6 +61,7 @@ class InstrumentResult:
     On failure, `error` contains a human-readable description suitable
     for both automated analysis and incident reports.
     """
+
     instrument_id: str
     operation: str
     success: bool
@@ -73,10 +76,7 @@ class InstrumentResult:
 
     def __str__(self) -> str:
         status = "OK" if self.success else f"FAILED: {self.error}"
-        return (
-            f"[{self.instrument_id}] {self.operation} "
-            f"({self.duration_seconds:.2f}s) -> {status}"
-        )
+        return f"[{self.instrument_id}] {self.operation} ({self.duration_seconds:.2f}s) -> {status}"
 
 
 class Instrument(ABC):

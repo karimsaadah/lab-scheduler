@@ -33,16 +33,17 @@ class EventType(Enum):
     callers and makes it impossible to accidentally emit a typo'd event type
     that silently goes undetected until an analysis script breaks.
     """
-    INSTRUMENT_REGISTERED = auto()   # A new instrument was added to the scheduler
-    SCHEDULER_STARTED = auto()       # Scheduler.run() began processing the queue
-    SCHEDULER_STOPPED = auto()       # Scheduler.run() exited (normally or via exception)
-    WORKFLOW_SUBMITTED = auto()      # A workflow was accepted and queued
-    WORKFLOW_STARTED = auto()        # The scheduler began executing a workflow
-    WORKFLOW_COMPLETED = auto()      # All steps finished successfully
-    WORKFLOW_FAILED = auto()         # A step failed and the workflow was aborted
-    STEP_STARTED = auto()            # A single workflow step began execution
-    STEP_COMPLETED = auto()          # A step finished successfully
-    STEP_FAILED = auto()             # A step exhausted its retries and was marked failed
+
+    INSTRUMENT_REGISTERED = auto()  # A new instrument was added to the scheduler
+    SCHEDULER_STARTED = auto()  # Scheduler.run() began processing the queue
+    SCHEDULER_STOPPED = auto()  # Scheduler.run() exited (normally or via exception)
+    WORKFLOW_SUBMITTED = auto()  # A workflow was accepted and queued
+    WORKFLOW_STARTED = auto()  # The scheduler began executing a workflow
+    WORKFLOW_COMPLETED = auto()  # All steps finished successfully
+    WORKFLOW_FAILED = auto()  # A step failed and the workflow was aborted
+    STEP_STARTED = auto()  # A single workflow step began execution
+    STEP_COMPLETED = auto()  # A step finished successfully
+    STEP_FAILED = auto()  # A step exhausted its retries and was marked failed
 
 
 class EventLog:

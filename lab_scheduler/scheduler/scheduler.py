@@ -80,10 +80,13 @@ class LabScheduler:
         self._instruments[instrument.instrument_id] = instrument
         self._instrument_locks[instrument.instrument_id] = threading.Lock()
         logger.info("Registered instrument: %s (%s)", instrument.instrument_id, instrument.name)
-        self._event_log.record(EventType.INSTRUMENT_REGISTERED, {
-            "instrument_id": instrument.instrument_id,
-            "name": instrument.name,
-        })
+        self._event_log.record(
+            EventType.INSTRUMENT_REGISTERED,
+            {
+                "instrument_id": instrument.instrument_id,
+                "name": instrument.name,
+            },
+        )
 
     def get_instrument(self, instrument_id: str) -> Instrument:
         if instrument_id not in self._instruments:
@@ -92,10 +95,7 @@ class LabScheduler:
 
     def instrument_status_report(self) -> dict[str, str]:
         """Returns a snapshot of all instrument statuses. Useful for health checks."""
-        return {
-            iid: inst.get_status().name
-            for iid, inst in self._instruments.items()
-        }
+        return {iid: inst.get_status().name for iid, inst in self._instruments.items()}
 
     # ------------------------------------------------------------------
     # Workflow submission
@@ -123,7 +123,10 @@ class LabScheduler:
 
         logger.info(
             "Workflow submitted: %s (id=%s, steps=%d, priority=%d)",
-            workflow.name, workflow.workflow_id, len(workflow.steps), workflow.priority
+            workflow.name,
+            workflow.workflow_id,
+            len(workflow.steps),
+            workflow.priority,
         )
         self._event_log.record(EventType.WORKFLOW_SUBMITTED, workflow.summary())
         return workflow.workflow_id
@@ -167,7 +170,8 @@ class LabScheduler:
     def _dispatch_ready_workflows(self, active_futures: dict) -> None:
         with self._queue_lock:
             dispatchable = [
-                w for w in self._queue
+                w
+                for w in self._queue
                 if w.workflow_id not in active_futures and not w.is_terminal()
             ]
 
@@ -223,7 +227,7 @@ class LabScheduler:
                 any_failed = any(s.status == StepStatus.FAILED for s in workflow.steps)
                 workflow.status = WorkflowStatus.FAILED if any_failed else WorkflowStatus.COMPLETED
                 break
-               
+
             time.sleep(0.1)
 
         workflow.finished_at = datetime.utcnow()
@@ -245,12 +249,15 @@ class LabScheduler:
 
         step.status = StepStatus.RUNNING
         step.started_at = datetime.utcnow()
-        self._event_log.record(EventType.STEP_STARTED, {
-            "workflow_id": workflow.workflow_id,
-            "step_index": step_idx,
-            "step_name": step.name,
-            "instrument_id": step.instrument_id,
-        })
+        self._event_log.record(
+            EventType.STEP_STARTED,
+            {
+                "workflow_id": workflow.workflow_id,
+                "step_index": step_idx,
+                "step_name": step.name,
+                "instrument_id": step.instrument_id,
+            },
+        )
 
         last_result = None
         for attempt in range(step.retry_count + 1):
@@ -260,8 +267,7 @@ class LabScheduler:
                     last_result = step.operation(instrument)
                 except Exception as exc:
                     logger.error(
-                        "Step '%s' raised exception on attempt %d: %s",
-                        step.name, attempt + 1, exc
+                        "Step '%s' raised exception on attempt %d: %s", step.name, attempt + 1, exc
                     )
                     last_result = None
 
@@ -271,7 +277,9 @@ class LabScheduler:
             if attempt < step.retry_count:
                 logger.warning(
                     "Step '%s' failed (attempt %d/%d), retrying...",
-                    step.name, attempt + 1, step.retry_count + 1
+                    step.name,
+                    attempt + 1,
+                    step.retry_count + 1,
                 )
                 time.sleep(1.0)  # Brief pause before retry
 
@@ -280,21 +288,26 @@ class LabScheduler:
 
         if last_result and last_result.success:
             step.status = StepStatus.COMPLETED
-            self._event_log.record(EventType.STEP_COMPLETED, {
-                "workflow_id": workflow.workflow_id,
-                "step_name": step.name,
-                "duration_seconds": last_result.duration_seconds,
-            })
+            self._event_log.record(
+                EventType.STEP_COMPLETED,
+                {
+                    "workflow_id": workflow.workflow_id,
+                    "step_name": step.name,
+                    "duration_seconds": last_result.duration_seconds,
+                },
+            )
         else:
             step.status = StepStatus.FAILED
             error_msg = last_result.error if last_result else "unhandled exception"
             logger.error(
-                "Step '%s' failed after %d attempt(s): %s",
-                step.name, step.attempts, error_msg
+                "Step '%s' failed after %d attempt(s): %s", step.name, step.attempts, error_msg
             )
-            self._event_log.record(EventType.STEP_FAILED, {
-                "workflow_id": workflow.workflow_id,
-                "step_name": step.name,
-                "error": error_msg,
-                "attempts": step.attempts,
-            })
+            self._event_log.record(
+                EventType.STEP_FAILED,
+                {
+                    "workflow_id": workflow.workflow_id,
+                    "step_name": step.name,
+                    "error": error_msg,
+                    "attempts": step.attempts,
+                },
+            )

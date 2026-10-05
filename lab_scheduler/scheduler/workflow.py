@@ -27,11 +27,11 @@ from typing import Any
 
 
 class WorkflowStatus(Enum):
-    PENDING = auto()      # Submitted, not yet started
-    RUNNING = auto()      # At least one step has started
-    COMPLETED = auto()    # All steps finished successfully
-    FAILED = auto()       # A step failed and the workflow was aborted
-    CANCELLED = auto()    # Cancelled before completion
+    PENDING = auto()  # Submitted, not yet started
+    RUNNING = auto()  # At least one step has started
+    COMPLETED = auto()  # All steps finished successfully
+    FAILED = auto()  # A step failed and the workflow was aborted
+    CANCELLED = auto()  # Cancelled before completion
 
 
 class StepStatus(Enum):
@@ -39,7 +39,7 @@ class StepStatus(Enum):
     RUNNING = auto()
     COMPLETED = auto()
     FAILED = auto()
-    SKIPPED = auto()      # Skipped because a prior step failed
+    SKIPPED = auto()  # Skipped because a prior step failed
 
 
 @dataclass
@@ -54,6 +54,7 @@ class WorkflowStep:
     retry_count: how many times the scheduler should retry this step on failure (0 = no retry)
     timeout_seconds: if the step takes longer than this, mark it failed
     """
+
     instrument_id: str
     operation: Callable
     name: str
@@ -79,6 +80,7 @@ class Workflow:
     submitted_by: identifier of the submitter (AI agent ID, researcher name, etc.)
     priority: higher values run before lower values when the scheduler must choose
     """
+
     steps: list[WorkflowStep]
     experiment_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = "unnamed_workflow"
@@ -106,8 +108,7 @@ class Workflow:
             if step.status != StepStatus.PENDING:
                 continue
             deps_met = all(
-                self.steps[dep_idx].status == StepStatus.COMPLETED
-                for dep_idx in step.depends_on
+                self.steps[dep_idx].status == StepStatus.COMPLETED for dep_idx in step.depends_on
             )
             if deps_met:
                 ready.append((i, step))

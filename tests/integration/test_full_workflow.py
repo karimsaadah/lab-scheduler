@@ -42,6 +42,7 @@ from lab_scheduler.scheduler.workflow import (
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def liquid_handler() -> LiquidHandler:
     lh = LiquidHandler("lh_01", "BioTek Liquid Handler", host="localhost")
@@ -76,6 +77,7 @@ def scheduler(event_log) -> LabScheduler:
 # ---------------------------------------------------------------------------
 # Integration test: LiquidHandler + PlateReader (2-step workflow)
 # ---------------------------------------------------------------------------
+
 
 class TestTransferThenRead:
     """
@@ -194,8 +196,12 @@ class TestTransferThenRead:
             instrument_id="pr_01",
             name="read",
             operation=lambda inst: inst.read_plate(
-                ReadSpec(plate_id="ev_test", mode=ReadMode.FLUORESCENCE,
-                         excitation_nm=485, emission_nm=528)
+                ReadSpec(
+                    plate_id="ev_test",
+                    mode=ReadMode.FLUORESCENCE,
+                    excitation_nm=485,
+                    emission_nm=528,
+                )
             ),
             depends_on=[0],
         )
@@ -222,6 +228,7 @@ class TestTransferThenRead:
 # ---------------------------------------------------------------------------
 # Integration test: Thermocycler quick protocol
 # ---------------------------------------------------------------------------
+
 
 class TestThermocyclerWorkflow:
     def test_short_pcr_completes(self, scheduler, thermocycler):
@@ -270,6 +277,7 @@ class TestThermocyclerWorkflow:
 # ---------------------------------------------------------------------------
 # Integration test: concurrent independent workflows
 # ---------------------------------------------------------------------------
+
 
 class TestConcurrentWorkflows:
     def test_two_workflows_different_instruments_both_complete(
