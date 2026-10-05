@@ -56,7 +56,7 @@ class WorkflowStep:
     """
 
     instrument_id: str
-    operation: Callable
+    operation: Callable[[Any], Any]
     name: str
     depends_on: list[int] = field(default_factory=list)
     retry_count: int = 0
@@ -121,7 +121,7 @@ class Workflow:
             WorkflowStatus.CANCELLED,
         )
 
-    def summary(self) -> dict:
+    def summary(self) -> dict[str, Any]:
         total = len(self.steps)
         completed = sum(1 for s in self.steps if s.status == StepStatus.COMPLETED)
         failed = sum(1 for s in self.steps if s.status == StepStatus.FAILED)
