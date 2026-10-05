@@ -147,7 +147,7 @@ class LabScheduler:
         logger.info("Scheduler started")
         self._event_log.record(EventType.SCHEDULER_STARTED, {})
 
-        active_futures: dict[str, Future] = {}  # workflow_id -> future
+        active_futures: dict[str, Future[None]] = {}  # workflow_id -> future
 
         try:
             while self._running:
@@ -167,7 +167,7 @@ class LabScheduler:
             self._event_log.record(EventType.SCHEDULER_STOPPED, {})
             logger.info("Scheduler stopped")
 
-    def _dispatch_ready_workflows(self, active_futures: dict) -> None:
+    def _dispatch_ready_workflows(self, active_futures: dict[str, Future[None]]) -> None:
         with self._queue_lock:
             dispatchable = [
                 w
@@ -179,7 +179,7 @@ class LabScheduler:
             future = self._executor.submit(self._execute_workflow, workflow)
             active_futures[workflow.workflow_id] = future
 
-    def _collect_completed(self, active_futures: dict) -> None:
+    def _collect_completed(self, active_futures: dict[str, Future[None]]) -> None:
         done = [wid for wid, f in active_futures.items() if f.done()]
         for wid in done:
             future = active_futures.pop(wid)
@@ -198,7 +198,7 @@ class LabScheduler:
         workflow.started_at = datetime.utcnow()
         self._event_log.record(EventType.WORKFLOW_STARTED, workflow.summary())
 
-        step_futures: dict[int, Future] = {}
+        step_futures: dict[int, Future[None]] = {}
 
         while True:
             ready = workflow.get_ready_steps()
