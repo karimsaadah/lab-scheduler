@@ -18,6 +18,7 @@ import logging
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from typing import Any
 
 from .base import Instrument, InstrumentResult, InstrumentStatus
 
