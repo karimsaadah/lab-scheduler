@@ -192,7 +192,7 @@ class Thermocycler(Instrument):
             },
         )
 
-    def get_run_status(self) -> dict:
+    def get_run_status(self) -> dict[str, Any]:
         """
         Query current run state. Called by the scheduler polling loop.
         Returns a dict with 'running', 'complete', 'error', and 'elapsed_seconds'.
