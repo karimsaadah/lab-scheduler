@@ -220,9 +220,10 @@ class LabScheduler:
                 for s in workflow.steps
             )
             if all_done:
-                workflow.status = WorkflowStatus.COMPLETED
+                any_failed = any(s.status == StepStatus.FAILED for s in workflow.steps)
+                workflow.status = WorkflowStatus.FAILED if any_failed else WorkflowStatus.COMPLETED
                 break
-
+               
             time.sleep(0.1)
 
         workflow.finished_at = datetime.utcnow()
