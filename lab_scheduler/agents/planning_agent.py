@@ -164,7 +164,7 @@ class PlanningAgent:
             WorkflowStep(
                 instrument_id=tc_id,
                 name="wait_for_pcr_completion",
-                operation=lambda inst: inst.wait_for_completion(  # type: ignore[misc]
+                operation=lambda inst: inst.wait_for_completion(
                     poll_interval_seconds=0.05,
                     timeout_seconds=7200.0,
                 ),
@@ -241,7 +241,7 @@ class PlanningAgent:
             WorkflowStep(
                 instrument_id=tc_id,
                 name="wait_for_pcr",
-                operation=lambda inst: inst.wait_for_completion(poll_interval_seconds=0.05),  # type: ignore[misc]
+                operation=lambda inst: inst.wait_for_completion(poll_interval_seconds=0.05),
                 depends_on=[0],
             ),
             WorkflowStep(
