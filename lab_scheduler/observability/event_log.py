@@ -20,7 +20,7 @@ Design rationale:
 from __future__ import annotations
 
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum, auto
 from typing import Any
 
@@ -80,7 +80,7 @@ class EventLog:
                         Values must be JSON-serializable for downstream consumers.
         """
         event = {
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(timezone.utc),
             "event_type": event_type,
             "payload": payload,
         }

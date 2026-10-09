@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import statistics
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from ..instruments.base import InstrumentResult
@@ -50,7 +50,7 @@ class PipelineResult:
     qc_notes: list[str] = field(default_factory=list)
     instrument_id: str = ""
     operation: str = ""
-    processed_at: datetime = field(default_factory=datetime.utcnow)
+    processed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     raw_result: InstrumentResult | None = field(default=None, repr=False)
 
     def __str__(self) -> str:
@@ -189,7 +189,7 @@ class DataPipeline:
         return {
             "report_version": "1.0",
             "workflow_id": workflow_id,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "overall_qc_passed": all_passed,
             "step_count": len(results),
             "steps": step_summaries,

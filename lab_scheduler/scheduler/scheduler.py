@@ -30,7 +30,7 @@ import logging
 import threading
 import time
 from concurrent.futures import Future, ThreadPoolExecutor
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..instruments.base import Instrument, InstrumentStatus
 from ..observability.event_log import EventLog, EventType
@@ -195,7 +195,7 @@ class LabScheduler:
         waits for all steps to complete or fail, then marks the workflow terminal.
         """
         workflow.status = WorkflowStatus.RUNNING
-        workflow.started_at = datetime.utcnow()
+        workflow.started_at = datetime.now(timezone.utc)
         self._event_log.record(EventType.WORKFLOW_STARTED, workflow.summary())
 
         step_futures: dict[int, Future[None]] = {}
@@ -230,7 +230,7 @@ class LabScheduler:
 
             time.sleep(0.1)
 
-        workflow.finished_at = datetime.utcnow()
+        workflow.finished_at = datetime.now(timezone.utc)
         event_type = (
             EventType.WORKFLOW_COMPLETED
             if workflow.status == WorkflowStatus.COMPLETED
@@ -248,7 +248,7 @@ class LabScheduler:
         lock = self._instrument_locks[step.instrument_id]
 
         step.status = StepStatus.RUNNING
-        step.started_at = datetime.utcnow()
+        step.started_at = datetime.now(timezone.utc)
         self._event_log.record(
             EventType.STEP_STARTED,
             {
@@ -284,7 +284,7 @@ class LabScheduler:
                 time.sleep(1.0)  # Brief pause before retry
 
         step.result = last_result
-        step.finished_at = datetime.utcnow()
+        step.finished_at = datetime.now(timezone.utc)
 
         if last_result and last_result.success:
             step.status = StepStatus.COMPLETED

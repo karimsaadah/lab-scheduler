@@ -8,7 +8,7 @@ in milliseconds, and failure scenarios that would require physical instruments.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -35,7 +35,7 @@ from lab_scheduler.scheduler.workflow import (
 def _make_result(
     instrument_id: str, operation: str, success: bool, error: str | None = None
 ) -> InstrumentResult:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     return InstrumentResult(
         instrument_id=instrument_id,
         operation=operation,

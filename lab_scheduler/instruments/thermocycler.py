@@ -17,7 +17,7 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from .base import Instrument, InstrumentResult, InstrumentStatus
@@ -172,7 +172,7 @@ class Thermocycler(Instrument):
 
         self._status = InstrumentStatus.BUSY
         self._current_program = program
-        self._run_started_at = datetime.utcnow()
+        self._run_started_at = datetime.now(timezone.utc)
 
         self._logger.info(
             "Starting program '%s': %d cycles, ~%ds estimated",
@@ -199,7 +199,7 @@ class Thermocycler(Instrument):
         Returns a dict with 'running', 'complete', 'error', and 'elapsed_seconds'.
         """
         if self._status == InstrumentStatus.BUSY and self._run_started_at:
-            elapsed = (datetime.utcnow() - self._run_started_at).total_seconds()
+            elapsed = (datetime.now(timezone.utc) - self._run_started_at).total_seconds()
             estimated = (
                 self._current_program.estimated_duration_seconds if self._current_program else 0
             )
@@ -233,9 +233,9 @@ class Thermocycler(Instrument):
         short enough to avoid hanging indefinitely on a lost connection.
         """
         started_at = self._start_result("wait_for_completion")
-        deadline = datetime.utcnow() + timedelta(seconds=timeout_seconds)
+        deadline = datetime.now(timezone.utc) + timedelta(seconds=timeout_seconds)
 
-        while datetime.utcnow() < deadline:
+        while datetime.now(timezone.utc) < deadline:
             status = self.get_run_status()
             if status["error"]:
                 return self._make_result(

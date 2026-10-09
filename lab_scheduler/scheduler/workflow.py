@@ -21,7 +21,7 @@ from __future__ import annotations
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum, auto
 from typing import Any
 
@@ -86,7 +86,7 @@ class Workflow:
     name: str = "unnamed_workflow"
     submitted_by: str = "unknown"
     priority: int = 0
-    submitted_at: datetime = field(default_factory=datetime.utcnow)
+    submitted_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Set by scheduler
     workflow_id: str = field(default_factory=lambda: str(uuid.uuid4()))

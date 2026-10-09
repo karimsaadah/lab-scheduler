@@ -22,7 +22,7 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum, auto
 from typing import Any
 
@@ -139,7 +139,7 @@ class Instrument(ABC):
     def _start_result(self, operation: str) -> datetime:
         """Record start time for a result. Call at the top of each operation."""
         self._logger.debug("Starting operation: %s", operation)
-        return datetime.utcnow()
+        return datetime.now(timezone.utc)
 
     def _make_result(
         self,
@@ -154,7 +154,7 @@ class Instrument(ABC):
             operation=operation,
             success=success,
             started_at=started_at,
-            finished_at=datetime.utcnow(),
+            finished_at=datetime.now(timezone.utc),
             data=data or {},
             error=error,
         )
