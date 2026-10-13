@@ -234,12 +234,14 @@ class DataPipeline:
 
         if cv > self.cv_threshold:
             qc_notes.append(
-                f"FAIL: CV {cv:.3f} ({cv * 100:.1f}%) exceeds threshold {self.cv_threshold * 100:.1f}%"
+                f"FAIL: CV {cv:.3f} ({cv * 100:.1f}%) "
+                f"exceeds threshold {self.cv_threshold * 100:.1f}%"
             )
             qc_passed = False
         else:
             qc_notes.append(
-                f"PASS: CV {cv:.3f} ({cv * 100:.1f}%) within threshold {self.cv_threshold * 100:.1f}%"
+                f"PASS: CV {cv:.3f} ({cv * 100:.1f}%) "
+                f"within threshold {self.cv_threshold * 100:.1f}%"
             )
 
         # Outlier detection

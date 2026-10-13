@@ -423,7 +423,7 @@ class PlanningAgent:
             raise PlanningError(f"Network error calling Anthropic API: {exc}") from exc
 
         try:
-            return body["content"][0]["text"]
+            return str(body["content"][0]["text"])
         except (KeyError, IndexError) as exc:
             raise PlanningError(f"Unexpected Anthropic API response shape: {body}") from exc
 
@@ -533,7 +533,7 @@ class PlanningAgent:
                 )
                 program_name = "pcr_standard"
             program = STANDARD_PROGRAMS[program_name]
-            return lambda inst, p=program: inst.run_program(p)  # type: ignore[misc]
+            return lambda inst, p=program: inst.run_program(p)
 
         if operation_name == "wait_for_completion":
             poll = float(params.get("poll_interval_seconds", 5.0))
@@ -561,17 +561,17 @@ class PlanningAgent:
                 wavelength_nm=params.get("wavelength_nm"),
                 gain=params.get("gain", "auto"),
             )
-            return lambda inst, s=spec: inst.read_plate(s)  # type: ignore[misc]
+            return lambda inst, s=spec: inst.read_plate(s)
 
         if operation_name == "transfer":
-            spec = TransferSpec(
+            transfer_spec = TransferSpec(
                 volume_ul=float(params.get("volume_ul", 50.0)),
                 source=params.get("source", "reservoir_1"),
                 destination=params.get("destination", "A1"),
                 tip_index=int(params.get("tip_index", 0)),
                 mix_cycles=int(params.get("mix_cycles", 0)),
             )
-            return lambda inst, s=spec: inst.transfer(s)  # type: ignore[misc]
+            return lambda inst, s=transfer_spec: inst.transfer(s)
 
         raise PlanningError(
             f"LLM plan step {step_index} specifies unknown operation '{operation_name}' "
