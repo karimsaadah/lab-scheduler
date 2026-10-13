@@ -172,9 +172,7 @@ class PlanningAgent:
             self._logger.debug("Goal '%s' matched rule-based planner", goal_normalized)
             return self._rule_based_plan(goal_normalized, available_instruments)
 
-        self._logger.info(
-            "Goal '%s' not in known protocols — delegating to LLM planner", goal
-        )
+        self._logger.info("Goal '%s' not in known protocols — delegating to LLM planner", goal)
         return self._llm_plan(goal, available_instruments)
 
     # ------------------------------------------------------------------
@@ -197,10 +195,7 @@ class PlanningAgent:
 
         # Build instrument inventory description for the prompt
         instrument_descriptions = self._describe_instruments(available_instruments)
-        user_message = (
-            f"Goal: {goal}\n\n"
-            f"Available instruments:\n{instrument_descriptions}"
-        )
+        user_message = f"Goal: {goal}\n\nAvailable instruments:\n{instrument_descriptions}"
 
         self._logger.debug("Sending goal to LLM: %s", goal)
         raw_json = self._call_anthropic(user_message)
@@ -214,9 +209,7 @@ class PlanningAgent:
             ) from exc
 
         if "error" in plan:
-            raise PlanningError(
-                f"LLM cannot plan goal '{goal}': {plan['error']}"
-            )
+            raise PlanningError(f"LLM cannot plan goal '{goal}': {plan['error']}")
 
         return self._build_workflow_from_plan(plan, available_instruments, goal)
 
@@ -246,58 +239,68 @@ class PlanningAgent:
         goal_lower = goal.lower()
 
         has_pcr = any(k in goal_lower for k in ("pcr", "thermocycl", "amplif", "cycl"))
-        has_absorbance = any(k in goal_lower for k in ("absorbance", " od ", "optical density", "600"))
-        has_fluorescence = any(k in goal_lower for k in ("fluores", "gfp", "rfp", "emit", "485", "528"))
+        has_absorbance = any(
+            k in goal_lower for k in ("absorbance", " od ", "optical density", "600")
+        )
+        has_fluorescence = any(
+            k in goal_lower for k in ("fluores", "gfp", "rfp", "emit", "485", "528")
+        )
         has_luminescence = any(k in goal_lower for k in ("luminesc", "luciferase"))
         has_transfer = any(k in goal_lower for k in ("transfer", "pipet", "dispense", "liquid"))
 
         # Determine which instrument types are actually available
-        has_tc  = any(isinstance(i, Thermocycler)  for i in available_instruments.values())
-        has_pr  = any(isinstance(i, PlateReader)   for i in available_instruments.values())
-        has_lh  = any(isinstance(i, LiquidHandler) for i in available_instruments.values())
+        has_tc = any(isinstance(i, Thermocycler) for i in available_instruments.values())
+        has_pr = any(isinstance(i, PlateReader) for i in available_instruments.values())
+        has_lh = any(isinstance(i, LiquidHandler) for i in available_instruments.values())
 
         steps: list[dict[str, Any]] = []
         dep_offset = 0  # tracks current step index for depends_on
 
         # 1. Optional transfer step
         if has_transfer and has_lh:
-            steps.append({
-                "instrument_type": "LiquidHandler",
-                "name": "transfer_samples",
-                "operation": "transfer",
-                "params": {
-                    "volume_ul": 50.0,
-                    "source": "reservoir_1",
-                    "destination": "A1",
-                    "tip_index": 0,
-                    "mix_cycles": 3,
-                },
-                "depends_on": [],
-                "retry_count": 1,
-                "timeout_seconds": None,
-            })
+            steps.append(
+                {
+                    "instrument_type": "LiquidHandler",
+                    "name": "transfer_samples",
+                    "operation": "transfer",
+                    "params": {
+                        "volume_ul": 50.0,
+                        "source": "reservoir_1",
+                        "destination": "A1",
+                        "tip_index": 0,
+                        "mix_cycles": 3,
+                    },
+                    "depends_on": [],
+                    "retry_count": 1,
+                    "timeout_seconds": None,
+                }
+            )
             dep_offset += 1
 
         # 2. Optional PCR step (run + wait)
         if has_pcr and has_tc:
-            steps.append({
-                "instrument_type": "Thermocycler",
-                "name": "start_pcr_program",
-                "operation": "run_program",
-                "params": {"program_name": "pcr_standard"},
-                "depends_on": [dep_offset - 1] if dep_offset > 0 else [],
-                "retry_count": 1,
-                "timeout_seconds": None,
-            })
-            steps.append({
-                "instrument_type": "Thermocycler",
-                "name": "wait_for_pcr_completion",
-                "operation": "wait_for_completion",
-                "params": {"poll_interval_seconds": 0.05, "timeout_seconds": 7200.0},
-                "depends_on": [dep_offset],
-                "retry_count": 0,
-                "timeout_seconds": 7300.0,
-            })
+            steps.append(
+                {
+                    "instrument_type": "Thermocycler",
+                    "name": "start_pcr_program",
+                    "operation": "run_program",
+                    "params": {"program_name": "pcr_standard"},
+                    "depends_on": [dep_offset - 1] if dep_offset > 0 else [],
+                    "retry_count": 1,
+                    "timeout_seconds": None,
+                }
+            )
+            steps.append(
+                {
+                    "instrument_type": "Thermocycler",
+                    "name": "wait_for_pcr_completion",
+                    "operation": "wait_for_completion",
+                    "params": {"poll_interval_seconds": 0.05, "timeout_seconds": 7200.0},
+                    "depends_on": [dep_offset],
+                    "retry_count": 0,
+                    "timeout_seconds": 7300.0,
+                }
+            )
             dep_offset += 2
 
         # 3. Optional plate read step
@@ -323,15 +326,17 @@ class PlanningAgent:
                     "emission_nm": 528,
                     "gain": "auto",
                 }
-            steps.append({
-                "instrument_type": "PlateReader",
-                "name": "read_plate",
-                "operation": "read_plate",
-                "params": read_params,
-                "depends_on": [dep_offset - 1] if dep_offset > 0 else [],
-                "retry_count": 1,
-                "timeout_seconds": None,
-            })
+            steps.append(
+                {
+                    "instrument_type": "PlateReader",
+                    "name": "read_plate",
+                    "operation": "read_plate",
+                    "params": read_params,
+                    "depends_on": [dep_offset - 1] if dep_offset > 0 else [],
+                    "retry_count": 1,
+                    "timeout_seconds": None,
+                }
+            )
 
         # Fallback: nothing matched — default to a fluorescence read if possible
         if not steps:
@@ -340,21 +345,23 @@ class PlanningAgent:
                 goal,
             )
             if has_pr:
-                steps.append({
-                    "instrument_type": "PlateReader",
-                    "name": "read_plate_default",
-                    "operation": "read_plate",
-                    "params": {
-                        "plate_id": "plate_001",
-                        "mode": "FLUORESCENCE",
-                        "excitation_nm": 485,
-                        "emission_nm": 528,
-                        "gain": "auto",
-                    },
-                    "depends_on": [],
-                    "retry_count": 1,
-                    "timeout_seconds": None,
-                })
+                steps.append(
+                    {
+                        "instrument_type": "PlateReader",
+                        "name": "read_plate_default",
+                        "operation": "read_plate",
+                        "params": {
+                            "plate_id": "plate_001",
+                            "mode": "FLUORESCENCE",
+                            "excitation_nm": 485,
+                            "emission_nm": 528,
+                            "gain": "auto",
+                        },
+                        "depends_on": [],
+                        "retry_count": 1,
+                        "timeout_seconds": None,
+                    }
+                )
             else:
                 raise PlanningError(
                     f"Mock planner cannot plan goal '{goal}': no matching keywords and "
@@ -386,12 +393,14 @@ class PlanningAgent:
         Returns the text content of the first response block.
         Raises PlanningError on HTTP errors or unexpected response shapes.
         """
-        payload = json.dumps({
-            "model": _MODEL,
-            "max_tokens": 1024,
-            "system": _SYSTEM_PROMPT,
-            "messages": [{"role": "user", "content": user_message}],
-        }).encode()
+        payload = json.dumps(
+            {
+                "model": _MODEL,
+                "max_tokens": 1024,
+                "system": _SYSTEM_PROMPT,
+                "messages": [{"role": "user", "content": user_message}],
+            }
+        ).encode()
 
         req = urllib.request.Request(
             _ANTHROPIC_API_URL,
@@ -409,18 +418,14 @@ class PlanningAgent:
                 body = json.loads(resp.read().decode())
         except urllib.error.HTTPError as exc:
             error_body = exc.read().decode(errors="replace")
-            raise PlanningError(
-                f"Anthropic API error {exc.code}: {error_body}"
-            ) from exc
+            raise PlanningError(f"Anthropic API error {exc.code}: {error_body}") from exc
         except urllib.error.URLError as exc:
             raise PlanningError(f"Network error calling Anthropic API: {exc}") from exc
 
         try:
             return body["content"][0]["text"]
         except (KeyError, IndexError) as exc:
-            raise PlanningError(
-                f"Unexpected Anthropic API response shape: {body}"
-            ) from exc
+            raise PlanningError(f"Unexpected Anthropic API response shape: {body}") from exc
 
     def _build_workflow_from_plan(
         self,
